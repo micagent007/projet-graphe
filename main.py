@@ -66,5 +66,3 @@ def graph(n,K,a,b,PI):
 
 nx.draw(graph(n, K, 0.25, 0.75, PI))
 plt.savefig("test.png")
-
-"yo les reufs"
