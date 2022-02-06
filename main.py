@@ -52,17 +52,16 @@ def gen(n,K,a,b,PI):
 
     return A
 
-print(gen(n, K, 0.25, 0.75, PI))
-
 
 def graph(n,K,a,b,PI):
     G=nx.Graph()
     G.add_nodes_from(liste(n))
     A=gen(n,K,a,b,PI)
+    print(A)
     for i in range(n):
-        for j in range(i):
+        for j in range(n):
             if A[i][j]==1:
-                G.add_edge(i, j)
+                G.add_edge(i+1, j+1)
     return G
 
 nx.draw(graph(n, K, 0.25, 0.75, PI))
