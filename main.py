@@ -1,5 +1,7 @@
 import numpy as np
 import random as rd
+import networkx as nx
+import matplotlib.pyplot as plt
 
 def Binomiale(p):
     if rd.random() < p:
@@ -35,6 +37,9 @@ n=10
 K=2
 PI=loi_uniforme(K)
 
+def liste(n):
+    return([k for k in range (1,n+1)])
+
 def gen(n,K,a,b,PI):
     A=np.zeros((n,n))
     X=[tirage(PI) for i in range(n)]
@@ -47,5 +52,18 @@ def gen(n,K,a,b,PI):
 
     return A
 
+print(gen(n, K, 0.25, 0.75, PI))
 
-print(gen(n,K,0.25,0.75,PI))
+
+def graph(n,K,a,b,PI):
+    G=nx.Graph()
+    G.add_nodes_from(liste(n))
+    A=gen(n,K,a,b,PI)
+    for i in range(n):
+        for j in range(i):
+            if A[i][j]==1:
+                G.add_edge(i, j)
+    return G
+
+nx.draw(graph(n, K, 0.25, 0.75, PI))
+plt.savefig("test.png")
