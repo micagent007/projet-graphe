@@ -52,8 +52,8 @@ class GraphSSBM:
         Pi = []
         a = 0
         b = 0
-        W = np.zeroes((K,K))
-        Adj = np.zeroes((n,n))
+        W = np.zeros((K,K))
+        Adj = np.zeros((n,n))
     
     def afficher(self):
         print(self.Adj)
@@ -84,11 +84,17 @@ class GraphSSBM:
         
     def acces_adj(self):
         return(self.Adj)
-        
-        
-            
-        
-    
+
+    def trac_graph(self):
+        G = nx.Graph()
+        G.add_nodes_from(liste(n))
+        A =self.Adj
+        for i in range(n):
+            for j in range(n):
+                if A[i][j] == 1:
+                    G.add_edge(i + 1, j + 1)
+        nx.draw(G)
+        plt.savefig("test.png")
 
 ####################################################################################
 
