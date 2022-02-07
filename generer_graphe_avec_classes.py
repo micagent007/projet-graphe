@@ -161,9 +161,10 @@ def norme(v):
 
 def plus_proche(dep, v):
     dep = dep.transpose()
-    mini, ind = v - dep[0], 0
+    mini, ind = norme(v - dep[0]), 0
     for k in range(len(dep)):
-        if (mini > norme(v - dep[k])):
+        c=norme(v - dep[k])
+        if (mini > c ):
             ind = k
             mini = norme(v - dep[k])
     dep = dep.transpose()
@@ -199,30 +200,73 @@ def spectral_clustering(adj):
         if abs(Vap[k]) < 10 ** (-10):
             K += 1
             L += [Vep[k]]
-    vect = np.ones((n, K))
+    vect = np.ones((K, n))
     for i in range(n):
         for j in range(K):
-            vect[i][j] = L[j][i]
+            vect[j][i] = L[j][i]
     return ((K, vect))
 
 
 def K_means(K, vect):  # vect liste de vecteurs propres du laplacien
+    n=len(vect)
+    nbrevect = len(vect[0])
     vect2 = vect.copy()
     vect2 = vect2.transpose()
-    dep = []
+    VECT=[vect2[k] for k in  range(nbrevect)]
+    DEP = []
     for k in range(K):
-        dep += [vect2.pop(rd.randint(0, len(vect2)))]
-    dep = dep.transpose()
+        DEP += [VECT.pop(rd.randint(0, len(VECT)-1))]
+    dep = np.ones((n, K))
+    for i in range(n):
+        for j in range(K):
+            dep[i][j] = DEP[j][i]
     L = []
-    nbrevect = len(vect[0])
-    vect = vect.transposee()
+    vect = vect.transpose()
     for j in range(nbrevect):
         L += [plus_proche(dep, vect[j])]
+    vect=vect.transpose()
+    Lancien=L
+    stop= False
+    while (stop==False):
+        stop=True
+        PCOM=[]
+        Lnouveau=[]
+        Com=[[] for k in range(K)]
+        for k in range(len(L)):
+            Com[L[k]]+=[k]
+        for l in range(K):
+            nbrpoint=len(Com[l])
+            M=np.ones((n,nbrpoint))
+            for i in range(n):
+                for j in range(nbrpoint):
+                    M[i][j]=vect[i][Com[l][j]]
+            PCOM+=[barycentre(M)]
+        vect = vect.transpose()
+        pcom = np.ones((n, K))
+        for i in range(n):
+            for j in range(K):
+                pcom[i][j] = PCOM[j][i]
+        for m in range(nbrevect):
+            Lnouveau += [plus_proche(pcom, vect[m])]
+            if (Lnouveau[-1]!=L[m]):
+                stop=False
+        vect = vect.transpose()
+        L=Lnouveau
+    return(Com,Lnouveau)
+
+
+
+
+
+
+
+
 
 
 ####################################################################################
-G = GraphSBM(100, 5)
+G = GraphSBM(10, 2)
 G.generer_aleatoirement_SSBM(1, 0)
 G.afficher()
 (K, vect) = spectral_clustering(G.Adj)
-K_means(K, vect)
+print (K)
+print(K_means(K, vect))
