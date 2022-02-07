@@ -32,8 +32,10 @@ def W_SSBM(K, a, b):
 def W_SBM(K):
     res = np.zeros((K, K))
     for i in range(K):
-        for j in range(K):
-            res[i][j] = rd.random()
+        for j in range(i,K):
+            r=rd.random()
+            res[i][j] = r
+            res[j][i] = r
     return res
 
 
@@ -138,7 +140,7 @@ class GraphSBM:
 
 #tests
 
-G = GraphSBM(100, 5)
+G = GraphSBM(30, 5)
 G.generer_aleatoirement_SSBM(1,0)
 G.afficher()
 G.trac_graph()
@@ -179,7 +181,7 @@ def laplace(adj):
 
 def vp_laplacien(adj):
     (x,y)=np.linalg.eig(laplace(adj))
-    return x,y
+    return x
 
 def K_means(vect,K):#vect liste de vecteurs propres du laplacien
     vect2=vect.copy()
@@ -204,3 +206,4 @@ def K_means(vect,K):#vect liste de vecteurs propres du laplacien
 
 print(vp_laplacien(G.Adj))
 #print(laplace(G.Adj))
+print(W_SBM(6))
