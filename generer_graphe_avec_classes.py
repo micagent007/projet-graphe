@@ -252,7 +252,7 @@ def K_means(K, vect):  # vect liste de vecteurs propres du laplacien
                 stop=False
         vect = vect.transpose()
         L=Lnouveau
-    return(Com,Lnouveau)
+    return(Com)
 
 
 
@@ -264,9 +264,11 @@ def K_means(K, vect):  # vect liste de vecteurs propres du laplacien
 
 
 ####################################################################################
-G = GraphSBM(10, 2)
+G = GraphSBM(1000, 20)
 G.generer_aleatoirement_SSBM(1, 0)
 G.afficher()
 (K, vect) = spectral_clustering(G.Adj)
 print (K)
-print(K_means(K, vect))
+com=K_means(K, vect)
+print(len(com))
+print(com)
