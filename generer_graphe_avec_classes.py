@@ -32,8 +32,8 @@ def W_SSBM(K, a, b):
 def W_SBM(K):
     res = np.zeros((K, K))
     for i in range(K):
-        for j in range(i,K):
-            r=rd.random()
+        for j in range(i, K):
+            r = rd.random()
             res[i][j] = r
             res[j][i] = r
     return res
@@ -92,7 +92,8 @@ class GraphSBM:
     def generer_aleatoirement_SBM(self):
         self.Pi = proba_quelconque(self.K)
 
-        self.W = W_SBM(self.K)  # On génère W aléatoirement (matrice des coeffs de bernoulli pour la matrice d'adjacence)
+        self.W = W_SBM(
+            self.K)  # On génère W aléatoirement (matrice des coeffs de bernoulli pour la matrice d'adjacence)
 
         self.Adj = gen(self.n, self.K, self.W,
                        self.Pi)  # On génère la matrice d'adjacence à partir des a et b aléatoires et de random_pi
@@ -138,72 +139,90 @@ class GraphSBM:
 
 ####################################################################################
 
-#tests
+# tests
 
-G = GraphSBM(30, 5)
+"""G = GraphSBM(30, 5)
 G.generer_aleatoirement_SSBM(1,0)
 G.afficher()
-G.trac_graph()
+G.trac_graph()"""
+
 
 ####################################################################################
 
-#K-means
+# K-means
 
 def norme(v):
-    n=len(v)
-    somme=0
+    n = len(v)
+    somme = 0
     for k in range(n):
-        somme+=v[k]**2
+        somme += v[k] ** 2
     return np.sqrt(somme)
 
-def plus_proche(dep,v):
-    dep=dep.transpose()
-    mini,ind=v-dep[0],0
-    for k in range(len(dep)):
-        if (mini>norme(v-dep[k])):
-            ind=k
-            mini=norme(v-dep[k])
-    dep=dep.transpose()
-    return(ind)
 
-def barycentre(vect):#vect array de p vecteur à n coordonnées
-    bary=[]
+def plus_proche(dep, v):
+    dep = dep.transpose()
+    mini, ind = v - dep[0], 0
+    for k in range(len(dep)):
+        if (mini > norme(v - dep[k])):
+            ind = k
+            mini = norme(v - dep[k])
+    dep = dep.transpose()
+    return (ind)
+
+
+def barycentre(vect):  # vect array de p vecteur à n coordonnées
+    bary = []
     for i in range(len(vect)):
-        somme=0
+        somme = 0
         for j in range(len(vect[0])):
-            somme+=vect[i][j]
-        bary+=[somme/len(vect)]
+            somme += vect[i][j]
+        bary += [somme / len(vect)]
     return bary
 
+
 def laplace(adj):
-    D=np.diag(adj.sum(axis=0))
-    return D-adj
+    D = np.diag(adj.sum(axis=0))
+    return D - adj
+
 
 def vp_laplacien(adj):
-    (x,y)=np.linalg.eig(laplace(adj))
-    return x
+    (x, y) = np.linalg.eig(laplace(adj))
+    return (x, y)
 
-def K_means(vect,K):#vect liste de vecteurs propres du laplacien
-    vect2=vect.copy()
-    vect2=vect2.transpose()
-    dep=[]
+
+def spectral_clustering(adj):
+    (Vap, Vep) = vp_laplacien(adj)
+    K, n, Nbvect = 0, len(Vep), len(Vap)
+    Vep = Vep.transpose()
+    L = []
+    for k in range(Nbvect):
+        if abs(Vap[k]) < 10 ** (-10):
+            K += 1
+            L += [Vep[k]]
+    vect = np.ones((n, K))
+    for i in range(n):
+        for j in range(K):
+            vect[i][j] = L[j][i]
+    return ((K, vect))
+
+
+def K_means(K, vect):  # vect liste de vecteurs propres du laplacien
+    vect2 = vect.copy()
+    vect2 = vect2.transpose()
+    dep = []
     for k in range(K):
-        dep+=[vect2.pop(rd.randint(0, len(vect2)))]
-    dep=dep.transpose()
-    L=[]
-    nbrevect=len(vect[0])
-    vect=vect.transposee()
+        dep += [vect2.pop(rd.randint(0, len(vect2)))]
+    dep = dep.transpose()
+    L = []
+    nbrevect = len(vect[0])
+    vect = vect.transposee()
     for j in range(nbrevect):
-        L+=[plus_proche(dep,vect[j])]
-    
-        
-    
-    
-    
+        L += [plus_proche(dep, vect[j])]
 
 
 ####################################################################################
-
-print(vp_laplacien(G.Adj))
-#print(laplace(G.Adj))
-print(W_SBM(6))
+G = GraphSBM(100, 5)
+G.generer_aleatoirement_SSBM(1, 0)
+G.afficher()
+(K, vect) = spectral_clustering(G.Adj)
+K_means(K, vect)
