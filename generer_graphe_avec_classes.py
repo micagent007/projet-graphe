@@ -90,8 +90,7 @@ class GraphSBM:
     def generer_aleatoirement_SBM(self):
         self.Pi = proba_quelconque(self.K)
 
-        self.W = W_SBM(
-            self.K)  # On génère W aléatoirement (matrice des coeffs de bernoulli pour la matrice d'adjacence)
+        self.W = W_SBM(self.K)  # On génère W aléatoirement (matrice des coeffs de bernoulli pour la matrice d'adjacence)
 
         self.Adj = gen(self.n, self.K, self.W,
                        self.Pi)  # On génère la matrice d'adjacence à partir des a et b aléatoires et de random_pi
@@ -137,8 +136,71 @@ class GraphSBM:
 
 ####################################################################################
 
+#tests
 
-G = GraphSBM(30, 2)
-G.generer_aleatoirement_SBM()
+G = GraphSBM(100, 5)
+G.generer_aleatoirement_SSBM(1,0)
 G.afficher()
 G.trac_graph()
+
+####################################################################################
+
+#K-means
+
+def norme(v):
+    n=len(v)
+    somme=0
+    for k in range(n):
+        somme+=v[k]**2
+    return np.sqrt(somme)
+
+def plus_proche(dep,v):
+    dep=dep.transpose()
+    mini,ind=v-dep[0],0
+    for k in range(len(dep)):
+        if (mini>norme(v-dep[k])):
+            ind=k
+            mini=norme(v-dep[k])
+    dep=dep.transpose()
+    return(ind)
+
+def barycentre(vect):#vect array de p vecteur à n coordonnées
+    bary=[]
+    for i in range(len(vect)):
+        somme=0
+        for j in range(len(vect[0])):
+            somme+=vect[i][j]
+        bary+=[somme/len(vect)]
+    return bary
+
+def laplace(adj):
+    D=np.diag(adj.sum(axis=0))
+    return D-adj
+
+def vp_laplacien(adj):
+    (x,y)=np.linalg.eig(laplace(adj))
+    return x,y
+
+def K_means(vect,K):#vect liste de vecteurs propres du laplacien
+    vect2=vect.copy()
+    vect2=vect2.transpose()
+    dep=[]
+    for k in range(K):
+        dep+=[vect2.pop(rd.randint(0, len(vect2)))]
+    dep=dep.transpose()
+    L=[]
+    nbrevect=len(vect[0])
+    vect=vect.transposee()
+    for j in range(nbrevect):
+        L+=[plus_proche(dep,vect[j])]
+    
+        
+    
+    
+    
+
+
+####################################################################################
+
+print(vp_laplacien(G.Adj))
+#print(laplace(G.Adj))
