@@ -59,7 +59,7 @@ def tirage(PI):
 
 
 def liste(n):
-    return ([k for k in range(1, n + 1)])
+    return ([k for k in range(1, n+1)])
 
 
 def gen(n, K, W, PI):
@@ -135,6 +135,28 @@ class GraphSBM:
                     G.add_edge(i + 1, j + 1)
         nx.draw(G)
         plt.savefig("test.png")
+    
+    def trac_graph_communaute(self,com):
+        G = nx.Graph()
+        G.add_nodes_from(liste(self.n))
+        A = self.Adj
+        for i in range(self.n):
+            for j in range(self.n):
+                if A[i][j] == 1:
+                    G.add_edge(i + 1, j + 1)
+                    
+        values=[0 for k in range(self.n)]             
+        for k in range(len(com)):
+            for j  in range (len(com[k])):
+                values[com[k][j]-1]=k
+        options = {
+        'node_color' : values,
+        'node_size'  : 500,
+        'edge_color' : 'tab:grey',
+        'with_labels': True
+        }
+        nx.draw(G,**options)
+        plt.savefig("test.png")    
 
 
 ####################################################################################
@@ -233,13 +255,13 @@ def K_means(K, vect):  # vect liste de vecteurs propres du laplacien
         Lnouveau=[]
         Com=[[] for k in range(K)]
         for k in range(len(L)):
-            Com[L[k]]+=[k]
+            Com[L[k]]+=[k+1]
         for l in range(K):
             nbrpoint=len(Com[l])
             M=np.ones((n,nbrpoint))
             for i in range(n):
                 for j in range(nbrpoint):
-                    M[i][j]=vect[i][Com[l][j]]
+                    M[i][j]=vect[i][Com[l][j]-1]
             PCOM+=[barycentre(M)]
         vect = vect.transpose()
         pcom = np.ones((n, K))
@@ -264,11 +286,14 @@ def K_means(K, vect):  # vect liste de vecteurs propres du laplacien
 
 
 ####################################################################################
-G = GraphSBM(1000, 20)
+G = GraphSBM(20, 2)
 G.generer_aleatoirement_SSBM(1, 0)
 G.afficher()
+
 (K, vect) = spectral_clustering(G.Adj)
 print (K)
 com=K_means(K, vect)
 print(len(com))
 print(com)
+G.trac_graph_communaute(com)
+
