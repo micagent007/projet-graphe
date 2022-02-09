@@ -38,6 +38,16 @@ def W_SBM(K):
             res[j][i] = r
     return res
 
+def W_SBM1(K):
+    res = np.zeros((K, K))
+    D= np.diag([rd.random() for j in range(K)])
+    for i in range(K):
+        for j in range(i, K):
+            if (i<j):
+                res[i,j] = rd.random()
+    res+= np.transpose(res)+D
+    return res
+print (W_SBM1(3))
 
 def proba_quelconque(K):
     random_pi = [rd.random() for i in range(K)]  # On génère aléatoirement les L[i]
@@ -188,87 +198,70 @@ def laplace(adj):
 
 def vp_laplacien(adj):
     (x, y) = np.linalg.eig(laplace(adj))
+    x=x.real                                #On prend la partie réelle pour ignorer la partie imaginaire apparaît à cause des approximations de l'ordinateur
+    y=y.real
     return (x, y)
 
-
-def spectral_clustering(adj):
+def spectral_clustering1(adj):
     (Vap, Vep) = vp_laplacien(adj)
+    print("vap",Vep)
     K, n, Nbvect = 0, len(Vep), len(Vap)
     Vep = Vep.transpose()
     L = []
     for k in range(Nbvect):
-        if abs(Vap[k]) < 10 ** (-10):
+        if abs(Vap[k]) < 10e-7:
             K += 1
-            L += [Vep[k]]
-    vect = np.ones((K, n))
+            L.append(Vep[k])
+    L=np.array(L)
+    vect=L.transpose()
+    return (K, vect)
+
+def barycentres(vect,ListeDindice,K,n):
+    res=np.zeros((n,K))
+    coef=[0 for j in range(K)]
     for i in range(n):
-        for j in range(K):
-            vect[j][i] = L[j][i]
-    return ((K, vect))
+        res[ListeDindice[i]] = res[ListeDindice[i]] + vect[i]
+        coef[ListeDindice[i]] += 1
+    for j in range (K):
+        if coef[j]!=0:
+            res[j]=res[j]/coef[j]
+    return res
 
 
-def K_means(K, vect):  # vect liste de vecteurs propres du laplacien
-    n=len(vect)
-    nbrevect = len(vect[0])
-    vect2 = vect.copy()
-    vect2 = vect2.transpose()
-    VECT=[vect2[k] for k in  range(nbrevect)]
-    DEP = []
+def K_means1(K, vect,n):  # vect liste de vecteurs propres du laplacien, vect possède n lignes de taille k
+    DEP = [] #Indice des sommets de départs
     for k in range(K):
-        DEP += [VECT.pop(rd.randint(0, len(VECT)-1))]
-    dep = np.ones((n, K))
-    for i in range(n):
-        for j in range(K):
-            dep[i][j] = DEP[j][i]
-    L = []
-    vect = vect.transpose()
-    for j in range(nbrevect):
-        L += [plus_proche(dep, vect[j])]
-    vect=vect.transpose()
-    Lancien=L
-    stop= False
-    while (stop==False):
-        stop=True
-        PCOM=[]
-        Lnouveau=[]
-        Com=[[] for k in range(K)]
-        for k in range(len(L)):
-            Com[L[k]]+=[k]
-        for l in range(K):
-            nbrpoint=len(Com[l])
-            M=np.ones((n,nbrpoint))
-            for i in range(n):
-                for j in range(nbrpoint):
-                    M[i][j]=vect[i][Com[l][j]]
-            PCOM+=[barycentre(M)]
-        vect = vect.transpose()
-        pcom = np.ones((n, K))
+        DEP.append(vect[rd.randint(0,n-1)]) #On génère aléatoirement des indices de départ
+    dep = np.array(DEP)
+    nL=[0]
+    ListeDindice = [] #Dans cette liste ListeDindice[i]=j si le sommet i appartient à la communauté j (si le vecteur représentant un communauté j est le proche de l'élément i)
+    while nL !=ListeDindice: #On regarde si la liste a changée
+        nL=ListeDindice
+        ListeDindice=[]
         for i in range(n):
-            for j in range(K):
-                pcom[i][j] = PCOM[j][i]
-        for m in range(nbrevect):
-            Lnouveau += [plus_proche(pcom, vect[m])]
-            if (Lnouveau[-1]!=L[m]):
-                stop=False
-        vect = vect.transpose()
-        L=Lnouveau
-    return(Com)
+            p = 0
+            mini = np.linalg.norm(dep[0]-vect[i],2)
+            for j in range(1,K):                        #On cherche quel "vecteur de communauté" est le plus proche de l'élément i
+                nor =np.linalg.norm(dep[j]-vect[i],2)
+                if nor < mini:
+                    mini = nor
+                    p = j
+            ListeDindice.append(p)
+        dep=barycentres(vect, ListeDindice, K, n)
 
-
-
-
-
-
-
-
-
+    Com=[[] for j in range(K)]
+    for i in range(n):
+        Com[ListeDindice[i]].append(i)
+    return Com
 
 ####################################################################################
-G = GraphSBM(1000, 20)
-G.generer_aleatoirement_SSBM(1, 0)
+n=1000
+k=5
+G = GraphSBM(n, k)
+G.generer_SSBM(.9, 0)
 G.afficher()
-(K, vect) = spectral_clustering(G.Adj)
+(K, vect) = spectral_clustering1(G.Adj)
 print (K)
-com=K_means(K, vect)
+com=K_means1(K,vect,n)
 print(len(com))
 print(com)
