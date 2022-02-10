@@ -141,7 +141,7 @@ class GraphSBM:
         A = self.Adj
         for i in range(self.n):
             for j in range(self.n):
-                if A[i][j] == 1:
+                if A[i,j] == 1:
                     G.add_edge(i + 1, j + 1)
         nx.draw(G)
         plt.savefig("test.png")
@@ -166,6 +166,7 @@ class GraphSBM:
         'with_labels': True
         }
         nx.draw(G,**options)
+        plt.plot()
         plt.savefig("test.png")    
 
 
@@ -226,12 +227,12 @@ def vp_laplacien(adj):
 
 def spectral_clustering1(adj):
     (Vap, Vep) = vp_laplacien(adj)
-    print("vap",Vep)
     K, n, Nbvect = 0, len(Vep), len(Vap)
+    print ('vap',Vap)
     Vep = Vep.transpose()
     L = []
     for k in range(Nbvect):
-        if abs(Vap[k]) < 10e-7:
+        if abs(Vap[k]) < 5:   #epsilon à définir
             K += 1
             L.append(Vep[k])
     L=np.array(L)
@@ -239,7 +240,7 @@ def spectral_clustering1(adj):
     return (K, vect)
 
 def barycentres(vect,ListeDindice,K,n):
-    res=np.zeros((n,K))
+    res=np.zeros((K,K))
     coef=[0 for j in range(K)]
     for i in range(n):
         res[ListeDindice[i]] = res[ListeDindice[i]] + vect[i]
@@ -247,13 +248,15 @@ def barycentres(vect,ListeDindice,K,n):
     for j in range (K):
         if coef[j]!=0:
             res[j]=res[j]/coef[j]
+        else :
+            res[j,0]=np.inf
     return res
 
 
 def K_means1(K, vect,n):  # vect liste de vecteurs propres du laplacien, vect possède n lignes de taille k
     DEP = [] #Indice des sommets de départs
     for k in range(K):
-        DEP.append(vect[rd.randint(0,n-1)]) #On génère aléatoirement des indices de départ
+        DEP.append(vect[rd.randint(0,n-1)]) #On génère aléatoirement des indices de départ #ça serait bien de force que ça prenne des points différents
     dep = np.array(DEP)
     nL=[0]
     ListeDindice = [] #Dans cette liste ListeDindice[i]=j si le sommet i appartient à la communauté j (si le vecteur représentant un communauté j est le proche de l'élément i)
@@ -273,16 +276,16 @@ def K_means1(K, vect,n):  # vect liste de vecteurs propres du laplacien, vect po
 
     Com=[[] for j in range(K)]
     for i in range(n):
-        Com[ListeDindice[i]].append(i)
+        Com[ListeDindice[i]].append(i+1)
     return Com
 
 ####################################################################################
 
-n=1000
-k=5
+n=300
+k=3
 G = GraphSBM(n, k)
-G.generer_SSBM(.9, 0)
-G.afficher()
+G.generer_SSBM(.9, 0.01)
+#G.afficher()
 (K, vect) = spectral_clustering1(G.Adj)
 
 print (K)
@@ -291,3 +294,4 @@ print(len(com))
 print(com)
 G.trac_graph_communaute(com)
 
+b=3
