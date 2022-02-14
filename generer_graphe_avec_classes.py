@@ -293,11 +293,25 @@ def K_means1(K, vect,n):  # vect liste de vecteurs propres du laplacien, vect po
                     p = j
             ListeDindice.append(p)
         dep=barycentres(vect, ListeDindice, K, n)
+    s=0
+    for i in range(n):
+        s+=np.norm(dep[ListeDindice[i]]-vect[i],2)
 
     Com=[[] for j in range(K)]
     for i in range(n):
         Com[ListeDindice[i]].append(i+1)
-    return Com
+    return Com,s
+
+def Opti_Kmeans(K,vect,n,iteration):
+    min=np.inf
+    ComFinal=[]
+    for i in range(iteration):
+        Com,s=K_means1(K,vect,n)
+        if s<min:
+            ComFinal=[list(Com[j]) for j in range(K)]
+            min =s
+    return ComFinal
+
 
 ####################################################################################
 
