@@ -246,6 +246,9 @@ def spectral_clustering_sans_k(adj):
     return (K, vect)
 def spectral_clustering_avec_k(adj,k):
     (Vap, Vep) = vp_laplacien(adj)
+    idx = np.flip(Vap.argsort()[::-1])  
+    Vap = Vap[idx]
+    Vep = Vep[:,idx]  #Vep et Vap sont ici trié
     K = k
     Vep = Vep.transpose()
     L = []
@@ -303,7 +306,7 @@ G = GraphSBM(n, k)
 G.generer_SSBM(.9, 0.01,1)
 #G.afficher()
 
-(K, vect) = spectral_clustering_sans_k(G.Adj)
+(K, vect) = spectral_clustering_avec_k(G.Adj,k)
 print (K)
 com=K_means1(K,vect,n)
 print(len(com))
