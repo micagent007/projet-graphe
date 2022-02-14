@@ -295,7 +295,7 @@ def K_means1(K, vect,n):  # vect liste de vecteurs propres du laplacien, vect po
         dep=barycentres(vect, ListeDindice, K, n)
     s=0
     for i in range(n):
-        s+=np.norm(dep[ListeDindice[i]]-vect[i],2)
+        s+=np.linalg.norm(dep[ListeDindice[i]]-vect[i],2)
 
     Com=[[] for j in range(K)]
     for i in range(n):
@@ -323,7 +323,7 @@ G.generer_SSBM(.9, 0.01,1)
 
 (K, vect) = spectral_clustering_avec_k(G.Adj,k)
 print (K)
-com=K_means1(K,vect,n)
+com=Opti_Kmeans(K,vect,n,10)
 print(len(com))
 print(com)
 G.trac_graph_communaute(com)
