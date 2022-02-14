@@ -18,14 +18,14 @@ def loi_uniforme(K):
     return res
 
 
-def W_SSBM(K, a, b):
+def W_SSBM(K, a, b,alpha_n):
     res = np.zeros((K, K))
     for i in range(K):
         for j in range(K):
             if i == j:
-                res[i, j] = a
+                res[i, j] = a*alpha_n
             else:
-                res[i, j] = b
+                res[i, j] = b*alpha_n
     return res
 
 
@@ -108,23 +108,23 @@ class GraphSBM:
         self.Adj = gen(self.n, self.K, self.W,
                        self.Pi)  # On génère la matrice d'adjacence à partir des a et b aléatoires et de random_pi
 
-    def generer_aleatoirement_SSBM(self, max_a, max_b):
+    def generer_aleatoirement_SSBM(self, max_a, max_b, alpha_n):
         self.Pi = loi_uniforme(self.K)
 
         self.a = rd.random() * max_a  # On génère a et b aléatoirement
         self.b = rd.random() * max_b
 
-        self.W = W_SSBM(self.K, self.a, self.b)  # On génère W à partir des données aléatoires
+        self.W = W_SSBM(self.K, self.a, self.b,alpha_n)  # On génère W à partir des données aléatoires
 
         self.Adj = gen(self.n, self.K, self.W,
                        self.Pi)  # On génère la matrice d'adjacence à partir des a et b aléatoires et de random_pi
 
-    def generer_SSBM(self, val_a, val_b):
+    def generer_SSBM(self, val_a, val_b,alpha_n):
         self.Pi = loi_uniforme(self.K)
         self.a = val_a
         self.b = val_b
 
-        self.W = W_SSBM(self.K, self.a, self.b)
+        self.W = W_SSBM(self.K, self.a, self.b,alpha_n)
 
         self.Adj = gen(self.n, self.K, self.W, self.Pi)
 
@@ -167,7 +167,8 @@ class GraphSBM:
         }
         nx.draw(G,**options)
         plt.plot()
-        plt.savefig("test.png")    
+        plt.savefig("test.png")   
+        plt.show()
 
 
 ####################################################################################
@@ -225,16 +226,31 @@ def vp_laplacien(adj):
     y=y.real
     return (x, y)
 
-def spectral_clustering1(adj):
+def spectral_clustering_sans_k(adj):
     (Vap, Vep) = vp_laplacien(adj)
-    K, n, Nbvect = 0, len(Vep), len(Vap)
-    print ('vap',Vap)
+    idx = np.flip(Vap.argsort()[::-1])  
+    Vap = Vap[idx]
+    Vep = Vep[:,idx]  #Vep et Vap sont ici trié
+    K, Nbvect = 0, len(Vap)
     Vep = Vep.transpose()
     L = []
-    for k in range(Nbvect):
-        if abs(Vap[k]) < 5:   #epsilon à définir
-            K += 1
-            L.append(Vep[k])
+
+    ecartrel=np.array([(abs(Vap[j]-Vap[j+1]))/Vap[j] for j in range(1,Nbvect-1)])
+    print(Vap)
+    print(ecartrel)
+    K=np.argmax(ecartrel)+2
+    for k in range(0,K):
+        L.append(Vep[k])
+    L=np.array(L)
+    vect=L.transpose()
+    return (K, vect)
+def spectral_clustering_avec_k(adj,k):
+    (Vap, Vep) = vp_laplacien(adj)
+    K = k
+    Vep = Vep.transpose()
+    L = []
+    for j in range(K):
+        L.append(Vep[j])
     L=np.array(L)
     vect=L.transpose()
     return (K, vect)
@@ -282,16 +298,16 @@ def K_means1(K, vect,n):  # vect liste de vecteurs propres du laplacien, vect po
 ####################################################################################
 
 n=300
-k=3
+k=4
 G = GraphSBM(n, k)
-G.generer_SSBM(.9, 0.01)
+G.generer_SSBM(.9, 0.01,1)
 #G.afficher()
-(K, vect) = spectral_clustering1(G.Adj)
 
+(K, vect) = spectral_clustering_sans_k(G.Adj)
 print (K)
 com=K_means1(K,vect,n)
 print(len(com))
 print(com)
 G.trac_graph_communaute(com)
 
-b=3
+
