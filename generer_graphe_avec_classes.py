@@ -311,3 +311,22 @@ print(com)
 G.trac_graph_communaute(com)
 
 
+## Non backtracking matrix
+
+def NonBacktrac(Adj,n):
+    L=[]
+    for i in range(n):
+        for j in range(n):
+            if Adj[i,j]==1:
+                L.append((i,j))
+
+    nE=len(L)
+    B=np.zeros((nE,nE))
+    for i,e1 in L:
+        for j,e2 in L:
+            if e1[1]==e2[0] and e1[0]!=e2[1]:
+                B[i,j]=1
+    return B
+
+
+
