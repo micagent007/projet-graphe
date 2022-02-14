@@ -272,6 +272,7 @@ def barycentres(vect,ListeDindice,K,n):
     return res
 
 
+
 def K_means1(K, vect,n):  # vect liste de vecteurs propres du laplacien, vect possède n lignes de taille k
     DEP = [] #Indice des sommets de départs
     for k in range(K):
@@ -330,6 +331,10 @@ def NonBacktrac(Adj,n):
             if e1[1]==e2[0] and e1[0]!=e2[1]:
                 B[i,j]=1
     return B
+#Bethe-Hessian
+def Bethe_Hess(Adj,D,r):
+    return (r*r-1)*np.diag(np.ones(n))+D-r*Adj
+
 
 
 
