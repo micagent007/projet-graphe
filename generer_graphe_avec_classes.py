@@ -177,7 +177,7 @@ class GraphSBM:
         Vep = Vep[:, idx]  # Vep et Vap sont ici triées
         X=list(range(self.n//4))
         Y=[Vap[x] for x in X]
-        plt.scatter(X,Y,s=0.2,color='r')
+        plt.scatter(X,Y,s=20,color='r')
         plt.show()
 ####################################################################################
 
@@ -228,21 +228,20 @@ def laplace(adj):
     return D - adj
 
 
-def vp_laplacien(adj):
+def Vap_Vep(adj):
     (x, y) = np.linalg.eig(laplace(adj))
     x=x.real                                #On prend la partie réelle pour ignorer la partie imaginaire apparaît à cause des approximations de l'ordinateur
     y=y.real
+    idx = np.flip(x.argsort()[::-1])
+    x = x[idx]
+    y = y[:, idx]  # Vep et Vap sont ici trié
     return (x, y)
 
 def spectral_clustering_sans_k(adj):
-    (Vap, Vep) = vp_laplacien(adj)
-    idx = np.flip(Vap.argsort()[::-1])  
-    Vap = Vap[idx]
-    Vep = Vep[:,idx]  #Vep et Vap sont ici trié
+    (Vap, Vep) = Vap_Vep(adj)
     K, Nbvect = 0, len(Vap)
     Vep = Vep.transpose()
     L = []
-
     ecartrel=np.array([(abs(Vap[j]-Vap[j+1]))/Vap[j] for j in range(1,Nbvect-1)])
     print(Vap)
     print(ecartrel)
@@ -253,10 +252,7 @@ def spectral_clustering_sans_k(adj):
     vect=L.transpose()
     return (K, vect)
 def spectral_clustering_avec_k(adj,k):
-    (Vap, Vep) = vp_laplacien(adj)
-    idx = np.flip(Vap.argsort()[::-1])  
-    Vap = Vap[idx]
-    Vep = Vep[:,idx]  #Vep et Vap sont ici trié
+    (Vap, Vep) = Vap_Vep(adj)
     K = k
     Vep = Vep.transpose()
     L = []
@@ -267,7 +263,7 @@ def spectral_clustering_avec_k(adj,k):
     return (K, vect)
 
 def barycentres(vect,ListeDindice,K,n):
-    res=np.zeros((K,K))
+    res=np.zeros((K,len(vect[0])))
     coef=[0 for j in range(K)]
     for i in range(n):
         res[ListeDindice[i]] = res[ListeDindice[i]] + vect[i]
@@ -323,10 +319,10 @@ def Opti_Kmeans(K,vect,n,iteration):
 
 ####################################################################################
 
-n=300
+"""n=30
 k=4
 G = GraphSBM(n, k)
-G.generer_SSBM(.9, 0.01,1)
+G.generer_SSBM(.9, 0.1,1)
 #G.afficher()
 G.histogramme()
 
@@ -335,7 +331,7 @@ print (K)
 com=Opti_Kmeans(K,vect,n,10)
 print(len(com))
 print(com)
-G.trac_graph_communaute(com)
+G.trac_graph_communaute(com)"""
 
 
 ## Non backtracking matrix
@@ -355,8 +351,52 @@ def NonBacktrac(Adj,n):
                 B[i,j]=1
     return B
 #Bethe-Hessian
-def Bethe_Hess(Adj,D,r):
+def Bethe_Hess(Adj,r):
+    D = np.diag(Adj.sum(axis=0))
     return (r*r-1)*np.diag(np.ones(n))+D-r*Adj
+
+
+def Bethe_Hess_weak_recovery(Adj,k,iteration):
+    rc=np.trace(np.diag(Adj.sum(axis=0)))/len(Adj)
+    Hplus=Bethe_Hess(Adj,rc)
+    Hmoins=Bethe_Hess(Adj,-rc)
+    (Vap_p,Vep_p)=Vap_Vep(Hplus)
+    (Vap_m, Vep_m) = Vap_Vep(Hmoins)
+    L = []
+    i=0
+    Vep_p = Vep_p.transpose()
+    Vep_m = Vep_m.transpose()
+
+    while(Vap_p[i]<0):
+        L.append(Vep_p[i])
+        i+=1
+    i=0
+    while(Vap_m[i]<0):
+        L.append(Vep_m[i])
+        i+=1
+    L = np.array(L)
+    vect=L.transpose()
+    print(len(vect[0]))
+    com=Opti_Kmeans(k,vect,len(Adj),iteration)
+    return(com)
+def Improved_BH_com_detect(Adj):
+    D=np.diag(Adj.sum(axis=0))
+    c_phi = np.sqrt(np.linalg.norm(D,2)/D.sum())
+    k=0
+    H=Bethe_Hess(Adj,c_phi)
+    (Vap,Vep)=Vap_Vep(Adj)
+    while(Vap[k]<0):
+        k+=1
+    print(k)
+
+n=100
+k=2
+G = GraphSBM(n, k)
+G.generer_SSBM(.9, 0.1,1)
+Improved_BH_com_detect(G.Adj)
+
+#com=Bethe_Hess_weak_recovery(G.Adj,k,k*10)
+#G.trac_graph_communaute(com)
 
 
 
