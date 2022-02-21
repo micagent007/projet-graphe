@@ -171,7 +171,7 @@ class GraphSBM:
         plt.show()
 
     def histogramme(self):
-        (Vap, Vep) = vp_laplacien(self.Adj)
+        (Vap, Vep) = Vap_Vep(self.Adj)
         idx = np.flip(Vap.argsort()[::-1])
         Vap = Vap[idx]
         Vep = Vep[:, idx]  # Vep et Vap sont ici triées
