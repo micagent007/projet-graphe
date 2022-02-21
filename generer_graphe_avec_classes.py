@@ -170,7 +170,15 @@ class GraphSBM:
         plt.savefig("test.png")   
         plt.show()
 
-
+    def histogramme(self):
+        (Vap, Vep) = vp_laplacien(self.Adj)
+        idx = np.flip(Vap.argsort()[::-1])
+        Vap = Vap[idx]
+        Vep = Vep[:, idx]  # Vep et Vap sont ici triées
+        X=list(range(self.n//4))
+        Y=[Vap[x] for x in X]
+        plt.scatter(X,Y,s=0.2,color='r')
+        plt.show()
 ####################################################################################
 
 # tests
@@ -320,6 +328,7 @@ k=4
 G = GraphSBM(n, k)
 G.generer_SSBM(.9, 0.01,1)
 #G.afficher()
+G.histogramme()
 
 (K, vect) = spectral_clustering_avec_k(G.Adj,k)
 print (K)
