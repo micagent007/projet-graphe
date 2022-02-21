@@ -388,6 +388,7 @@ def Improved_BH_com_detect(Adj):
     while(Vap[k]<0):
         k+=1
     print(k)
+    #On fait commencer r à 1
 
 n=100
 k=2
