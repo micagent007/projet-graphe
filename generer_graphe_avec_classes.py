@@ -381,7 +381,7 @@ def Bethe_Hess_weak_recovery(Adj,k,iteration):
     return(com)
 def Improved_BH_com_detect(Adj):
     D=np.diag(Adj.sum(axis=0))
-    c_phi = np.sqrt(np.linalg.norm(D,2)/D.sum())
+    c_phi = np.sqrt(np.trace(D*D)/D.sum())
     k=0
     H=Bethe_Hess(Adj,c_phi)
     (Vap,Vep)=Vap_Vep(Adj)
