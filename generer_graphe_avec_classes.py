@@ -171,7 +171,7 @@ class GraphSBM:
         plt.show()
 
     def histogramme(self):
-        (Vap, Vep) = Vap_Vep(self.Adj)
+        (Vap, Vep) = vp_laplacian(self.Adj)
         idx = np.flip(Vap.argsort()[::-1])
         Vap = Vap[idx]
         Vep = Vep[:, idx]  # Vep et Vap sont ici triées
@@ -228,7 +228,7 @@ def laplace(adj):
     return D - adj
 
 
-def Vap_Vep(adj):
+def vp_laplacian(adj):
     (x, y) = np.linalg.eig(laplace(adj))
     x=x.real                                #On prend la partie réelle pour ignorer la partie imaginaire apparaît à cause des approximations de l'ordinateur
     y=y.real
@@ -238,7 +238,7 @@ def Vap_Vep(adj):
     return (x, y)
 
 def spectral_clustering_sans_k(adj):
-    (Vap, Vep) = Vap_Vep(adj)
+    (Vap, Vep) = vp_laplacian(adj)
     K, Nbvect = 0, len(Vap)
     Vep = Vep.transpose()
     L = []
@@ -252,7 +252,7 @@ def spectral_clustering_sans_k(adj):
     vect=L.transpose()
     return (K, vect)
 def spectral_clustering_avec_k(adj,k):
-    (Vap, Vep) = Vap_Vep(adj)
+    (Vap, Vep) = vp_laplacian(adj)
     K = k
     Vep = Vep.transpose()
     L = []
@@ -335,6 +335,15 @@ G.trac_graph_communaute(com)"""
 
 
 ## Non backtracking matrix
+def Vap_Vep(M):
+    (x, y) = np.linalg.eig(M)
+    x=x.real                                #On prend la partie réelle pour ignorer la partie imaginaire apparaît à cause des approximations de l'ordinateur
+    y=y.real
+    idx = np.flip(x.argsort()[::-1])
+    x = x[idx]
+    y = y[:, idx]  # Vep et Vap sont ici trié
+    return (x, y)
+    
 
 def NonBacktrac(Adj,n):
     L=[]
@@ -376,7 +385,6 @@ def Bethe_Hess_weak_recovery(Adj,k,iteration):
         i+=1
     L = np.array(L)
     vect=L.transpose()
-    print(len(vect[0]))
     com=Opti_Kmeans(k,vect,len(Adj),iteration)
     return(com)
 def Improved_BH_com_detect(Adj):
@@ -394,10 +402,10 @@ n=100
 k=2
 G = GraphSBM(n, k)
 G.generer_SSBM(.9, 0.1,1)
-Improved_BH_com_detect(G.Adj)
+#Improved_BH_com_detect(G.Adj)
 
-#com=Bethe_Hess_weak_recovery(G.Adj,k,k*10)
-#G.trac_graph_communaute(com)
+com=Bethe_Hess_weak_recovery(G.Adj,k,k*10)
+G.trac_graph_communaute(com)
 
 
 
