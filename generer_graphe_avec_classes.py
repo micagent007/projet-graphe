@@ -1,3 +1,5 @@
+import itertools
+
 import numpy as np
 import random as rd
 import networkx as nx
@@ -80,7 +82,32 @@ def gen(n, K, W, PI):
             if (i < j):
                 A[i, j] += Binomiale(W[X[i], X[j]])
     A = A + np.transpose(A)
-    return A
+    Com = [[] for j in range(K)]
+    for i in range(n):
+        Com[X[i]].append(i + 1)
+    return A,Com
+
+def ErreurPetitK(n,com1,com2):
+    k=len(com1)
+    err=n
+
+    H=list(itertools.permutations(com2))
+    ListInd1=np.zeros(n+1)
+    ListInd2=np.zeros(n+1)
+    for j in range(k):
+        for i in com1[j]:
+            ListInd1[i]=k
+    for com in H:
+        s=0
+        for j in range(k):
+            for i in com[j]:
+                ListInd2[i] = k
+        for i in range(n):
+            s+= int(ListInd1[i]!=ListInd2[i])
+        if s<err:
+            err=s
+    return err/n
+
 
 
 ####################################################################################
@@ -95,7 +122,7 @@ class GraphSBM:
         self.b = 0
         self.W = np.zeros((self.K, self.K))
         self.Adj = np.zeros((self.n, self.n))
-
+        self.COM=[[] for i in range(self.K)]
     def afficher(self):
         print(self.Adj)
 
@@ -105,7 +132,7 @@ class GraphSBM:
         self.W = W_SBM(
             self.K)  # On génère W aléatoirement (matrice des coeffs de bernoulli pour la matrice d'adjacence)
 
-        self.Adj = gen(self.n, self.K, self.W,
+        self.Adj,self.COM = gen(self.n, self.K, self.W,
                        self.Pi)  # On génère la matrice d'adjacence à partir des a et b aléatoires et de random_pi
 
     def generer_aleatoirement_SSBM(self, max_a, max_b, alpha_n):
@@ -116,7 +143,7 @@ class GraphSBM:
 
         self.W = W_SSBM(self.K, self.a, self.b,alpha_n)  # On génère W à partir des données aléatoires
 
-        self.Adj = gen(self.n, self.K, self.W,
+        self.Adj,self.COM = gen(self.n, self.K, self.W,
                        self.Pi)  # On génère la matrice d'adjacence à partir des a et b aléatoires et de random_pi
 
     def generer_SSBM(self, val_a, val_b,alpha_n):
@@ -126,7 +153,7 @@ class GraphSBM:
 
         self.W = W_SSBM(self.K, self.a, self.b,alpha_n)
 
-        self.Adj = gen(self.n, self.K, self.W, self.Pi)
+        self.Adj,self.COM = gen(self.n, self.K, self.W, self.Pi)
 
     def generer_predefini(self, A):
         self.adj = A
@@ -405,6 +432,9 @@ G.generer_SSBM(.9, 0.1,1)
 #Improved_BH_com_detect(G.Adj)
 
 com=Bethe_Hess_weak_recovery(G.Adj,k,k*10)
+print(com)
+print(G.COM)
+print(ErreurPetitK(n,com,G.COM))
 G.trac_graph_communaute(com)
 
 
