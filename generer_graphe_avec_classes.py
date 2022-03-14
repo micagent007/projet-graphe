@@ -94,16 +94,19 @@ def ErreurPetitK(n,com1,com2):
     H=list(itertools.permutations(com2))
     ListInd1=np.zeros(n+1)
     ListInd2=np.zeros(n+1)
+    Ldiff=np.zeros(n+1)
     for j in range(k):
         for i in com1[j]:
-            ListInd1[i]=k
+            ListInd1[i]=j
     for com in H:
         s=0
         for j in range(k):
             for i in com[j]:
-                ListInd2[i] = k
+                ListInd2[i] = j
+        Ldiff=ListInd1-ListInd2
         for i in range(n):
-            s+= int(ListInd1[i]!=ListInd2[i])
+            if Ldiff[i]!=0.0:
+                s+= 1
         if s<err:
             err=s
     return err/n
@@ -426,12 +429,13 @@ def Improved_BH_com_detect(Adj):
     #On fait commencer r à 1
 
 n=100
-k=2
+k=4
 G = GraphSBM(n, k)
-G.generer_SSBM(.9, 0.1,1)
+G.generer_SSBM(.9, 0.5,1)
 #Improved_BH_com_detect(G.Adj)
+(K, vect) = spectral_clustering_avec_k(G.Adj,k)
+com=Opti_Kmeans(K,vect,n,1)
 
-com=Bethe_Hess_weak_recovery(G.Adj,k,k*10)
 print(com)
 print(G.COM)
 print(ErreurPetitK(n,com,G.COM))
