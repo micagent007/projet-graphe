@@ -89,6 +89,7 @@ def gen(n, K, W, PI):
 
 def ErreurPetitK(n,com1,com2):
     k=len(com1)
+    assert(k<=5)
     err=n
 
     H=list(itertools.permutations(com2))
@@ -110,6 +111,43 @@ def ErreurPetitK(n,com1,com2):
         if s<err:
             err=s
     return err/n
+
+def CompteCommun(L1,L2): #Compte le nombre  d'éléments de deux listes triées
+    imax=len(L1)
+    jmax=len(L2)
+    i=0
+    j=0
+    res=0
+    while(i<imax and j<jmax):
+        if(L1[i]==L2[j]):
+            res+=1
+            i+=1
+            j+=1
+
+        elif L1[i]<L2[j]:
+            i+=1
+        else:
+            j+=1
+    return res
+
+
+def AgreementApproc(n,com1,com2):
+    k=len(com1)
+    agr=0
+    L=[]
+    for p in range(k):
+        compte=0
+        i=0
+        for j in range(k):
+            if not(j in L):
+                r=CompteCommun(com1[p],com2[j])
+                if r>compte:
+                    compte=r
+                    i=j
+        L.append(i)
+        agr+=compte
+    return agr/n
+
 
 
 
@@ -428,17 +466,18 @@ def Improved_BH_com_detect(Adj):
     print(k)
     #On fait commencer r à 1
 
-n=100
+n=1000
 k=4
 G = GraphSBM(n, k)
-G.generer_SSBM(.9, 0.5,1)
+G.generer_SSBM(.9, 0.2,1)
 #Improved_BH_com_detect(G.Adj)
 (K, vect) = spectral_clustering_avec_k(G.Adj,k)
-com=Opti_Kmeans(K,vect,n,1)
+com=Opti_Kmeans(k,vect,n,10)
 
 print(com)
 print(G.COM)
-print(ErreurPetitK(n,com,G.COM))
+print(AgreementApproc(n,com,G.COM))
+#print(ErreurPetitK(n,com,G.COM))
 G.trac_graph_communaute(com)
 
 
