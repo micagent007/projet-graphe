@@ -49,7 +49,6 @@ def W_SBM1(K):
                 res[i,j] = rd.random()
     res+= np.transpose(res)+D
     return res
-print (W_SBM1(3))
 
 def proba_quelconque(K):
     random_pi = [rd.random() for i in range(K)]  # On génère aléatoirement les L[i]
@@ -467,13 +466,14 @@ def Improved_BH_com_detect(Adj):
     #On fait commencer r à 1
 
 n=1000
-k=4
+k=15
 G = GraphSBM(n, k)
 G.generer_SSBM(.9, 0.2,1)
 #Improved_BH_com_detect(G.Adj)
 (K, vect) = spectral_clustering_avec_k(G.Adj,k)
 com=Opti_Kmeans(k,vect,n,10)
-
+com.sort()
+G.COM.sort()
 print(com)
 print(G.COM)
 print(AgreementApproc(n,com,G.COM))
