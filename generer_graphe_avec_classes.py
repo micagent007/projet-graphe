@@ -403,7 +403,7 @@ G.trac_graph_communaute(com)"""
 
 ## Non backtracking matrix
 def Vap_Vep(M):
-    (x, y) = np.linalg.eig(M)
+    (x, y) = np.linalg.eigh(M)
     x=x.real                                #On prend la partie réelle pour ignorer la partie imaginaire apparaît à cause des approximations de l'ordinateur
     y=y.real
     idx = np.flip(x.argsort()[::-1])
@@ -417,15 +417,17 @@ def NonBacktrac(Adj,n):
     for i in range(n):
         for j in range(n):
             if Adj[i,j]==1:
-                L.append((i,j))
+                L.append([i,j])
 
     nE=len(L)
     B=np.zeros((nE,nE))
-    for i,e1 in L:
-        for j,e2 in L:
-            if e1[1]==e2[0] and e1[0]!=e2[1]:
+    for i in range(len(L)):
+        for j in range(len(L)):
+            if L[i][1]==L[j][0] and L[i][0]!=L[j][1]:
                 B[i,j]=1
     return B
+
+
 #Bethe-Hessian
 def Bethe_Hess(Adj,r):
     D = np.diag(Adj.sum(axis=0))
@@ -468,7 +470,8 @@ def Improved_BH_com_detect(Adj):
 n=1000
 k=15
 G = GraphSBM(n, k)
-G.generer_SSBM(.9, 0.2,1)
+G.generer_SSBM(.9, 0.2,1/n)
+B=NonBacktrac(G.Adj,n)
 #Improved_BH_com_detect(G.Adj)
 (K, vect) = spectral_clustering_avec_k(G.Adj,k)
 com=Opti_Kmeans(k,vect,n,10)
