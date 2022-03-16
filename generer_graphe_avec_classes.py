@@ -387,8 +387,8 @@ def Opti_Kmeans(K,vect,n,iteration):
 
 ####################################################################################
 
-"""n=30
-k=4
+"""n=300
+k=15
 G = GraphSBM(n, k)
 G.generer_SSBM(.9, 0.1,1)
 #G.afficher()
@@ -466,14 +466,14 @@ def Improved_BH_com_detect(Adj):
     print(k)
     #On fait commencer r Ã  1
 
-n=80
-k=4
+n=300
+k=8
 G = GraphSBM(n, k)
 G.generer_SSBM(.9, 0.2,1)
 #Improved_BH_com_detect(G.Adj)
 (K, vect) = spectral_clustering_avec_k(G.Adj,k)
 com=Opti_Kmeans(k,vect,n,10)
-
+G.histogramme()
 print(com)
 print(G.COM)
 print(1-AgreementApproc(n,com,G.COM))
@@ -483,7 +483,7 @@ G.trac_graph_communaute(com)
 
 # Tableau pour les 3 axes
 N=10
-x =np.arange(1,N+1) # CrÃ©ation du tableau de l'axe k
+x =np.arange(1,2*N,2) # CrÃ©ation du tableau de l'axe k
 print(x)
 y=np.arange(100,(N+1)*100,100) # CrÃ©ation du tableau de l'axe n
 
@@ -498,7 +498,7 @@ def function_z(n,k):
     com=Opti_Kmeans(k,vect,n,10)
     return(1-AgreementApproc(n,com,G.COM))
 Z=np.zeros((N,N))  # CrÃ©ation du tableau de l'axe z entre 
-for i in range(N):
+"""for i in range(N):
     for j in range(N):
         print(X[i][j],Y[i][j])
         Z[i][j]=function_z(Y[i][j],X[i][j])
@@ -512,3 +512,4 @@ ax.plot_wireframe(X, Y, Z, color='black');
 ax.set_xlabel('k')
 ax.set_ylabel('n')
 ax.set_zlabel('err')
+plt.show()"""
