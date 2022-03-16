@@ -229,7 +229,7 @@ class GraphSBM:
                 values[com[k][j]-1]=k
         options = {
         'node_color' : values,
-        'node_size'  : 100,
+        'node_size'  : 300,
         'edge_color' : 'tab:grey',
         'with_labels': False
         }
@@ -238,15 +238,41 @@ class GraphSBM:
         plt.savefig("test.png")   
         plt.show()
 
-    def histogramme(self):
-        (Vap, Vep) = vp_laplacian(self.Adj)
-        idx = np.flip(Vap.argsort()[::-1])
-        Vap = Vap[idx]
-        Vep = Vep[:, idx]  # Vep et Vap sont ici triÃ©es
-        X=list(range(self.n//4))
-        Y=[Vap[x] for x in X]
-        plt.scatter(X,Y,s=20,color='r')
-        plt.show()
+    def histogramme(self,i):#1 Laplacian,2 Bethe_Hess,3 NonBacktrac
+        if i == 2:
+            rc=np.trace(np.diag(self.Adj.sum(axis=0))) / len(self.Adj)
+            (Vap, Vep) = Vap_Vep(Bethe_Hess(self.Adj,rc))
+            idx = np.flip(Vap.argsort()[::-1])
+            Vap = Vap[idx]
+            Vep = Vep[:, idx]  # Vep et Vap sont ici triÃ©es
+            X=list(range(self.n//4))
+            Y=[Vap[x] for x in X]
+            plt.scatter(X,Y,s=20,color='r')
+            plt.title("bethe hessian")
+            plt.show()
+        elif i==1:
+            (Vap, Vep) = vp_laplacian(self.Adj)
+            idx = np.flip(Vap.argsort()[::-1])
+            Vap = Vap[idx]
+            Vep = Vep[:, idx]  # Vep et Vap sont ici triÃ©es
+            X = list(range(self.n // 4))
+            Y = [Vap[x] for x in X]
+            plt.scatter(X, Y, s=20, color='r')
+            plt.title("laplacien ")
+            plt.show()
+
+        elif i == 3:
+            (Vap, Vep) = Vap_Vep(NonBacktrac(self.Adj,self.n))
+            idx = np.flip(Vap.argsort()[::-1])
+            Vap = Vap[idx]
+            Vep = Vep[:, idx]  # Vep et Vap sont ici triÃ©es
+            X=list(range(self.n//4))
+            Y=[Vap[x] for x in X]
+            plt.scatter(X,Y,s=20,color='r')
+            plt.title("non-backtracking")
+            plt.show()
+
+
 ####################################################################################
 
 # tests
@@ -466,14 +492,17 @@ def Improved_BH_com_detect(Adj):
     print(k)
     #On fait commencer r Ã  1
 
-n=300
-k=8
+n=80
+k=5
 G = GraphSBM(n, k)
-G.generer_SSBM(.9, 0.2,1)
+G.generer_SSBM(.9, 0.1,1/n)
 #Improved_BH_com_detect(G.Adj)
 (K, vect) = spectral_clustering_avec_k(G.Adj,k)
 com=Opti_Kmeans(k,vect,n,10)
-G.histogramme()
+G.histogramme(1)
+G.histogramme(2)
+NonBacktrac(G.Adj,n)
+G.histogramme(3)
 print(com)
 print(G.COM)
 print(1-AgreementApproc(n,com,G.COM))
