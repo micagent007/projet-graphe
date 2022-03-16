@@ -445,7 +445,6 @@ def NonBacktrac(Adj,n):
         for j in range(n):
             if Adj[i,j]==1:
                 L.append([i,j])
-
     nE=len(L)
     B=np.zeros((nE,nE))
     for i in range(len(L)):
