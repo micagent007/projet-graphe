@@ -49,9 +49,10 @@ def W_SBM1(K):
                 res[i,j] = rd.random()
     res+= np.transpose(res)+D
     return res
+print (W_SBM1(3))
 
 def proba_quelconque(K):
-    random_pi = [rd.random() for i in range(K)]  # On génère aléatoirement les L[i]
+    random_pi = [rd.random() for i in range(K)]  # On gÃ©nÃ¨re alÃ©atoirement les L[i]
     normalisation = 0
     for i in range(K):
         normalisation += random_pi[i]
@@ -111,7 +112,7 @@ def ErreurPetitK(n,com1,com2):
             err=s
     return err/n
 
-def CompteCommun(L1,L2): #Compte le nombre  d'éléments de deux listes triées
+def CompteCommun(L1,L2): #Compte le nombre  d'Ã©lÃ©ments de deux listes triÃ©es
     imax=len(L1)
     jmax=len(L2)
     i=0
@@ -170,21 +171,21 @@ class GraphSBM:
         self.Pi = proba_quelconque(self.K)
 
         self.W = W_SBM(
-            self.K)  # On génère W aléatoirement (matrice des coeffs de bernoulli pour la matrice d'adjacence)
+            self.K)  # On gÃ©nÃ¨re W alÃ©atoirement (matrice des coeffs de bernoulli pour la matrice d'adjacence)
 
         self.Adj,self.COM = gen(self.n, self.K, self.W,
-                       self.Pi)  # On génère la matrice d'adjacence à partir des a et b aléatoires et de random_pi
+                       self.Pi)  # On gÃ©nÃ¨re la matrice d'adjacence Ã  partir des a et b alÃ©atoires et de random_pi
 
     def generer_aleatoirement_SSBM(self, max_a, max_b, alpha_n):
         self.Pi = loi_uniforme(self.K)
 
-        self.a = rd.random() * max_a  # On génère a et b aléatoirement
+        self.a = rd.random() * max_a  # On gÃ©nÃ¨re a et b alÃ©atoirement
         self.b = rd.random() * max_b
 
-        self.W = W_SSBM(self.K, self.a, self.b,alpha_n)  # On génère W à partir des données aléatoires
+        self.W = W_SSBM(self.K, self.a, self.b,alpha_n)  # On gÃ©nÃ¨re W Ã  partir des donnÃ©es alÃ©atoires
 
         self.Adj,self.COM = gen(self.n, self.K, self.W,
-                       self.Pi)  # On génère la matrice d'adjacence à partir des a et b aléatoires et de random_pi
+                       self.Pi)  # On gÃ©nÃ¨re la matrice d'adjacence Ã  partir des a et b alÃ©atoires et de random_pi
 
     def generer_SSBM(self, val_a, val_b,alpha_n):
         self.Pi = loi_uniforme(self.K)
@@ -228,9 +229,9 @@ class GraphSBM:
                 values[com[k][j]-1]=k
         options = {
         'node_color' : values,
-        'node_size'  : 500,
+        'node_size'  : 100,
         'edge_color' : 'tab:grey',
-        'with_labels': True
+        'with_labels': False
         }
         nx.draw(G,**options)
         plt.plot()
@@ -241,7 +242,7 @@ class GraphSBM:
         (Vap, Vep) = vp_laplacian(self.Adj)
         idx = np.flip(Vap.argsort()[::-1])
         Vap = Vap[idx]
-        Vep = Vep[:, idx]  # Vep et Vap sont ici triées
+        Vep = Vep[:, idx]  # Vep et Vap sont ici triÃ©es
         X=list(range(self.n//4))
         Y=[Vap[x] for x in X]
         plt.scatter(X,Y,s=20,color='r')
@@ -280,7 +281,7 @@ def plus_proche(dep, v):
     return (ind)
 
 
-def barycentre(vect):  # vect array de p vecteur à n coordonnées
+def barycentre(vect):  # vect array de p vecteur Ã  n coordonnÃ©es
     bary = []
     for i in range(len(vect)):
         somme = 0
@@ -297,11 +298,11 @@ def laplace(adj):
 
 def vp_laplacian(adj):
     (x, y) = np.linalg.eig(laplace(adj))
-    x=x.real                                #On prend la partie réelle pour ignorer la partie imaginaire apparaît à cause des approximations de l'ordinateur
+    x=x.real                                #On prend la partie rÃ©elle pour ignorer la partie imaginaire apparaÃ®t Ã  cause des approximations de l'ordinateur
     y=y.real
     idx = np.flip(x.argsort()[::-1])
     x = x[idx]
-    y = y[:, idx]  # Vep et Vap sont ici trié
+    y = y[:, idx]  # Vep et Vap sont ici triÃ©
     return (x, y)
 
 def spectral_clustering_sans_k(adj):
@@ -344,20 +345,20 @@ def barycentres(vect,ListeDindice,K,n):
 
 
 
-def K_means1(K, vect,n):  # vect liste de vecteurs propres du laplacien, vect possède n lignes de taille k
-    DEP = [] #Indice des sommets de départs
+def K_means1(K, vect,n):  # vect liste de vecteurs propres du laplacien, vect possÃ¨de n lignes de taille k
+    DEP = [] #Indice des sommets de dÃ©parts
     for k in range(K):
-        DEP.append(vect[rd.randint(0,n-1)]) #On génère aléatoirement des indices de départ #ça serait bien de force que ça prenne des points différents
+        DEP.append(vect[rd.randint(0,n-1)]) #On gÃ©nÃ¨re alÃ©atoirement des indices de dÃ©part #Ã§a serait bien de force que Ã§a prenne des points diffÃ©rents
     dep = np.array(DEP)
     nL=[0]
-    ListeDindice = [] #Dans cette liste ListeDindice[i]=j si le sommet i appartient à la communauté j (si le vecteur représentant un communauté j est le proche de l'élément i)
-    while nL !=ListeDindice: #On regarde si la liste a changée
+    ListeDindice = [] #Dans cette liste ListeDindice[i]=j si le sommet i appartient Ã  la communautÃ© j (si le vecteur reprÃ©sentant un communautÃ© j est le proche de l'Ã©lÃ©ment i)
+    while nL !=ListeDindice: #On regarde si la liste a changÃ©e
         nL=ListeDindice
         ListeDindice=[]
         for i in range(n):
             p = 0
             mini = np.linalg.norm(dep[0]-vect[i],2)
-            for j in range(1,K):                        #On cherche quel "vecteur de communauté" est le plus proche de l'élément i
+            for j in range(1,K):                        #On cherche quel "vecteur de communautÃ©" est le plus proche de l'Ã©lÃ©ment i
                 nor =np.linalg.norm(dep[j]-vect[i],2)
                 if nor < mini:
                     mini = nor
@@ -404,11 +405,11 @@ G.trac_graph_communaute(com)"""
 ## Non backtracking matrix
 def Vap_Vep(M):
     (x, y) = np.linalg.eig(M)
-    x=x.real                                #On prend la partie réelle pour ignorer la partie imaginaire apparaît à cause des approximations de l'ordinateur
+    x=x.real                                #On prend la partie rÃ©elle pour ignorer la partie imaginaire apparaÃ®t Ã  cause des approximations de l'ordinateur
     y=y.real
     idx = np.flip(x.argsort()[::-1])
     x = x[idx]
-    y = y[:, idx]  # Vep et Vap sont ici trié
+    y = y[:, idx]  # Vep et Vap sont ici triÃ©
     return (x, y)
     
 
@@ -463,23 +464,51 @@ def Improved_BH_com_detect(Adj):
     while(Vap[k]<0):
         k+=1
     print(k)
-    #On fait commencer r à 1
+    #On fait commencer r Ã  1
 
-n=1000
-k=15
+n=80
+k=4
 G = GraphSBM(n, k)
 G.generer_SSBM(.9, 0.2,1)
 #Improved_BH_com_detect(G.Adj)
 (K, vect) = spectral_clustering_avec_k(G.Adj,k)
 com=Opti_Kmeans(k,vect,n,10)
-com.sort()
-G.COM.sort()
+
 print(com)
 print(G.COM)
-print(AgreementApproc(n,com,G.COM))
+print(1-AgreementApproc(n,com,G.COM))
 #print(ErreurPetitK(n,com,G.COM))
 G.trac_graph_communaute(com)
 
 
+# Tableau pour les 3 axes
+N=10
+x =np.arange(1,N+1) # CrÃ©ation du tableau de l'axe k
+print(x)
+y=np.arange(100,(N+1)*100,100) # CrÃ©ation du tableau de l'axe n
+
+print(y)
+X, Y = np.meshgrid(x, y)
+print(X.shape,Y.shape)
+
+def function_z(n,k):
+    G = GraphSBM(n, k)
+    G.generer_SSBM(.9, 0.2,1)
+    (K, vect) = spectral_clustering_avec_k(G.Adj,k)
+    com=Opti_Kmeans(k,vect,n,10)
+    return(1-AgreementApproc(n,com,G.COM))
+Z=np.zeros((N,N))  # CrÃ©ation du tableau de l'axe z entre 
+for i in range(N):
+    for j in range(N):
+        print(X[i][j],Y[i][j])
+        Z[i][j]=function_z(Y[i][j],X[i][j])
+print(Z.shape)
 
 
+fig = plt.figure()
+ax = plt.axes(projection='3d')
+ax.view_init(40, 100);
+ax.plot_wireframe(X, Y, Z, color='black');
+ax.set_xlabel('k')
+ax.set_ylabel('n')
+ax.set_zlabel('err')
